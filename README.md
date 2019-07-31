@@ -6,7 +6,7 @@ donate, confirm consumation and close charities. It was developed as final
 project in the developer bootcamp 2019 and is a truffle project with
 drizzle+react as frontend.
 
-[Screenshot](https://github.com/8locktec/charities/screenshot-dapp.PNG)
+[Screenshot](https://github.com/8locktec/charities/blob/master/screenshot-dapp.PNG)
 
 ### `Requirements`
 
