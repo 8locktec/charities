@@ -6,6 +6,8 @@ donate, confirm consumation and close charities. It was developed as final
 project in the developer bootcamp 2019 and is a truffle project with
 drizzle+react as frontend.
 
+[Screenshot](https://github.com/8locktec/charities/screenshot-dapp.PNG)
+
 ### `Requirements`
 
 -   [Node.js v8+ LTS and npm](https://nodejs.org/en/). Npm version 10.16.0.
