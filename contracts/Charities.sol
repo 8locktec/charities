@@ -1,8 +1,6 @@
 pragma solidity ^0.5.0;
 
-    /*
-        The Charities contract keeps track of the charities.
-     */
+/**  @title The Charities contract keeps track of the charities. */
 contract Charities {
 
     /*
@@ -11,10 +9,10 @@ contract Charities {
     address public owner ;
 
     /*
-      A charity has 5 states:
-      Pending = during creation ()
+      A charity has 3 states:
+      Pending = during creation
       Active = after a charity is added
-      Finished = if the some of the donations cannot be consumed we can refund the donation.
+      Finished = finished if closed, and if the some of the donations cannot be consumed we can refund the donation.
     */
     enum CharityStatus  {Pending, Active, Finished}
 
@@ -69,11 +67,17 @@ contract Charities {
       _;
     }
 
-    /*
-
-        Adds a new charity to the contract.
+    /** @dev Adds a new charity to the contract.
+      * @param _description description of the charity
+      * @param _patron a patron for the charity (logic not implemented yet)
+      * @param _totalDonations number of available donations for this charity
+      * @param _price price in wei for each charity item
+      * @param _serviceProvider the service provider which serves the charity item (and gets paid for served items)
+      * @param _closingBlock closing block for the donation (logic not implemented yet)
+      * @return charityID
     */
     function addCharity(string memory _description, address _patron, uint _totalDonations, uint _price, address payable _serviceProvider, uint _closingBlock) public payable isMsgSenderOwner() returns (uint charityID)  {
+      require( _totalDonations > 0 && _serviceProvider != 0x0000000000000000000000000000000000000000 && _price > 0 );
       charities[idGenerator].description = _description;
       charities[idGenerator].patron = _patron;
       charities[idGenerator].totalDonations = _totalDonations;
@@ -84,13 +88,18 @@ contract Charities {
       charities[idGenerator].status = CharityStatus.Active;
       emit LogCharityAdded(_description, _patron, _price, _serviceProvider, _closingBlock, _totalDonations, idGenerator);
       idGenerator +=1;
-
       return idGenerator-1;
-
     }
 
-    /*
-      Returns a charity with the given charityID.
+    /** @dev Returns charity members values with the given charityID.
+      * @param charityID ID of the charity to read
+      * @return description description of the charity
+      * @return totalDonations number of available donations for this charity
+      * @return soldDonations number of sold donations for this charity
+      * @return consumedDonations number of consumed donations for this charity
+      * @return serviceProvider he service provider which serves the charity item (and gets paid for served items)
+      * @return closingBlock  closing block for the donation (logic not implemented yet)
+      * @return isOpen status variable
     */
     function readCharity(uint charityID) public view
         returns(string memory description, uint totalDonations, uint soldDonations, uint consumedDonations, address serviceProvider, uint closingBlock, bool isOpen) {
@@ -98,14 +107,12 @@ contract Charities {
 
     }
 
-
-    /*
-
-        This function allows users to donate to a specific charity with given id.
-        This function takes 2 parameters, an charity ID and a number of donations.
-
+    /** @dev This function allows users to donate to a specific charity with given id.
+      * @param charityID ID of the charity to read
+      * @param nrOfDonations how many of the donation should be buyed
     */
     function donateToCharity(uint charityID, uint nrOfDonations) public payable {
+        require(nrOfDonations > 0);
         require(charities[charityID].isOpen == true);
         require(msg.value >= nrOfDonations* charities[charityID].price );
         require(charities[charityID].totalDonations-charities[charityID].soldDonations >= nrOfDonations);
@@ -117,19 +124,16 @@ contract Charities {
         emit LogCharityDonated(msg.sender, charityID, nrOfDonations, msg.value);
     }
 
-    /*
-
-        This function allows users to request a refund for a specific charity.
-        It is checked if there are refunds available.
-        This function takes one parameter, the event ID.
-
+    /** @dev This function allows users to request a refund for a specific charity. There are check to see if there are refunds available.
+      * @param charityID ID of the charity to read
     */
     function getRefund(uint charityID) public payable {
         require(charities[charityID].status == CharityStatus.Finished);
+        require(charities[charityID].donators[msg.sender] > 0);
+        int refundable = int(charities[charityID].totalDonations - charities[charityID].consumedDonations - charities[charityID].refundedDonations);
+        require(refundable > 0);
         uint senderRefundableDonations= charities[charityID].donators[msg.sender];
-        require(senderRefundableDonations > 0);
         uint totalRefundableDonations = charities[charityID].totalDonations - charities[charityID].consumedDonations - charities[charityID].refundedDonations ;
-        require(totalRefundableDonations > 0);
         uint calculatedRefundableDonations;
         if(senderRefundableDonations> totalRefundableDonations) {
           calculatedRefundableDonations = totalRefundableDonations;
@@ -144,33 +148,30 @@ contract Charities {
         emit LogCharityRefunded(msg.sender, charityID, calculatedRefundableDonations);
     }
 
-    /*
-        This function takes one parameter, a charity ID
-        This function returns a uint, the number of donations that the msg.sender has purchased.
+
+    /** @dev This function allows to get the nr of donations for a given charityID for the msg sender
+      * @param charityID ID of the charity
     */
     function getDonationNumberForDonator(uint charityID) public view
         returns(uint donatedCharities) {
-
+            require(charities[charityID].donators[msg.sender] > 0);
             return (charities[charityID].donators[msg.sender]);
     }
 
-    /*
-      Represents a confirmation of a consumation.
-      It takes a charity ID and a number of donations as parameters.
-      Only the contract owner can call this function.
+    /** @dev Represents a confirmation of a consumation. Only the contract owner can call this function.
+      * @param charityID ID of the charity
+      * @param donations number of consumed donations
     */
     function consumeDonation(uint charityID, uint donations) public isMsgSenderOwner {
       require(charities[charityID].status == CharityStatus.Active);
-      require(charities[charityID].soldDonations - charities[charityID].consumedDonations - donations >= 0);
+      int balance = int(charities[charityID].soldDonations - charities[charityID].consumedDonations - donations);
+      require(balance >= 0);
       charities[charityID].consumedDonations+= donations;
       emit LogDonationConsumed(charityID, donations);
     }
 
-    /*
-
-        This function takes one parameter, the charity ID
-        Only the contract owner can call this function
-
+    /** @dev Represents a closing of a charity. Only the contract owner can call this function.
+      * @param charityID ID of the charity
     */
     function closeCharity(uint charityID) public payable isMsgSenderOwner {
         require(charities[charityID].isOpen == true);
