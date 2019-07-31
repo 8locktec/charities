@@ -8,6 +8,8 @@ drizzle+react as frontend.
 
 [Screenshot](https://github.com/8locktec/charities/blob/master/screenshot-dapp.PNG)
 
+[Screencast](https://drive.google.com/file/d/16v1sQk1UFL5tqEbnH31bMOw01GrvXa2T/view?usp=sharing)
+
 ### `Requirements`
 
 -   [Node.js v8+ LTS and npm](https://nodejs.org/en/). Npm version 10.16.0.
