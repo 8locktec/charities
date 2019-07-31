@@ -28,7 +28,7 @@ drizzle+react as frontend.
 
 -   Checkout project
 
--   npm install in front folder
+-   go to front folder and start npm install
 
 -   Start your ganache-(cli) with ganache-cli
 

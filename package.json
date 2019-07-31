@@ -1,0 +1,26 @@
+{
+  "name": "charities",
+  "version": "1.0.0",
+  "description": "Final project developer bootcamp 2019 – charities\r -------------------------------------------------",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/8locktec/charities.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/8locktec/charities/issues"
+  },
+  "homepage": "https://github.com/8locktec/charities#readme",
+  "dependencies": {
+    "openzeppelin-solidity": "2.3.0"
+  }
+}
