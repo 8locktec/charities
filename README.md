@@ -24,9 +24,7 @@ drizzle+react as frontend.
 
 -   Checkout project
 
--   Npm install in main folder
-
--   Npm install in front folder
+-   npm install in front folder
 
 -   Start your ganache-(cli) with ganache-cli
 
@@ -38,7 +36,13 @@ drizzle+react as frontend.
     network to your local network and import the private key of account 0 from
     ganache-(cli). You can also connect with your remix instance if preferred.
 
--   Important! Change to the front/src directory. Add a symlink director
-    contracts to ..\\..\\build\\contracts in this directory in windows 10 with
-    mklink contracts ..\\..\\build\\contracts /J under linux: Delete the folder
-    contracts first.
+-   Important! Change to the front/src directory. Delete the folder contracts
+    first. Add a symlink director contracts to ..\\..\\build\\contracts in this
+    directory in WIN 10 with
+
+>   mklink contracts ..\\..\\build\\contracts /J
+
+>   under LINUX cd src  
+>   ln -s ../../build/contracts contracts
+
+-   go to front folder and start the dApp with npm start
