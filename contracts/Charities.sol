@@ -3,7 +3,8 @@ pragma solidity ^0.5.0;
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 
-/** @title The Charities contract keeps track of the charities.
+/** @title The Charities contract keeps track of the charities. It is using SafeMath library to mitigate
+           over and underflow problems. Circuit breaker stops execution of donations in emergency.
   * @dev using SafeMath ( uint256) for under/overflow protection
 */
 contract Charities {
@@ -12,6 +13,10 @@ contract Charities {
       Public owner variable which is set to the creator of the contract when it is initialized.
     */
     address public owner ;
+    /*
+      Emergency circuit breaker flag
+    */
+    bool private stopped = false;
 
     /*
       A charity has 3 states:
@@ -64,12 +69,23 @@ contract Charities {
         owner= msg.sender;
     }
 
+
     /*
         A modifier that throws an error if the msg.sender is not the owner.
     */
     modifier isMsgSenderOwner() {
       require(msg.sender == owner);
       _;
+    }
+
+    modifier stopInEmergency { if (!stopped) _; }
+    modifier onlyInEmergency { if (stopped) _; }
+
+
+    /** @dev circuit breaker functionality
+    */
+    function toggleContractActive() isMsgSenderOwner public {
+      stopped = !stopped;
     }
 
     /** @dev Adds a new charity to the contract.
@@ -116,7 +132,7 @@ contract Charities {
       * @param charityID ID of the charity to read
       * @param nrOfDonations how many of the donation should be buyed
     */
-    function donateToCharity(uint256 charityID, uint256 nrOfDonations) public payable {
+    function donateToCharity(uint256 charityID, uint256 nrOfDonations) stopInEmergency public payable {
         require(nrOfDonations > 0);
         require(charities[charityID].isOpen == true);
         require(msg.value >= SafeMath.mul(nrOfDonations, charities[charityID].price) );
@@ -132,7 +148,7 @@ contract Charities {
     /** @dev This function allows users to request a refund for a specific charity. There are check to see if there are refunds available.
       * @param charityID ID of the charity to read
     */
-    function getRefund(uint256 charityID) public payable {
+    function getRefund(uint256 charityID) stopInEmergency public payable {
         require(charities[charityID].status == CharityStatus.Finished);
         require(charities[charityID].donators[msg.sender] > 0);
         int refundable = int(charities[charityID].totalDonations - charities[charityID].consumedDonations - charities[charityID].refundedDonations);

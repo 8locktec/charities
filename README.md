@@ -4,7 +4,8 @@ Final project developer bootcamp 2019 – charities
 This dApp gives you the possibility to work with charities. You can create,
 donate, confirm consumation and close charities. It was developed as final
 project in the developer bootcamp 2019 and is a truffle project with
-drizzle+react as frontend.
+drizzle+react as frontend. It uses Safemath library for buffer over and underflows
+The circuit breaker (pause contract functionality) was implemented for two functions.
 
 [Screenshot](https://github.com/8locktec/charities/blob/master/screenshot-dapp.PNG)
 
@@ -49,4 +50,4 @@ drizzle+react as frontend.
 >   under LINUX cd src  
 >   ln -s ../../build/contracts contracts
 
--   go to front folder and start the dApp with npm start
+-   go to front folder and start the dApp with npm start (start on other port if 3000 is in use)
